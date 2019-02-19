@@ -25,19 +25,50 @@ server.get("/api/zoos", async (req, res) => {
     const zoos = await db("zoos");
     res.status(200).json(zoos);
   } catch (error) {
-    res.status(500).json(error);
+    res
+      .status(500)
+      .json({ message: "The zoos information could not be retrieved." });
   }
 });
 
 //Get zoo by id
 server.get("/api/zoos/:id", async (req, res) => {
   try {
-    const zoo = await db("zoos")
-      .where({ id: req.params.id })
-      .first();
-    res.status(200).json(zoo);
+    if (zoo) {
+      const zoo = await db("zoos")
+        .where({ id: req.params.id })
+        .first();
+      res.status(200).json(zoo);
+    } else {
+      res
+        .status(404)
+        .json({ message: "The zoo with the specified ID does not exist." });
+    }
   } catch (error) {
-    res.status(500).json(error);
+    res
+      .status(500)
+      .json({ message: "The zoo information could not be retrieved." });
+  }
+});
+
+//Create zoos
+server.post("/api/zoos", async (req, res) => {
+  try {
+    if (req.body.name) {
+      const [id] = await db("zoos").insert(req.body);
+      const zoo = await db("zoos")
+        .where({ id })
+        .first();
+      res.status(201).json(zoo);
+    } else {
+      res.status(400).json({
+        errorMessage: "Please provide the name for the zoo."
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      message: "There was an error while saving the zoo to the database"
+    });
   }
 });
 
