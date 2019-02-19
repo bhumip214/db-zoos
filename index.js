@@ -31,7 +31,7 @@ server.get("/api/zoos", async (req, res) => {
   }
 });
 
-//Get zoo by id
+//Get zoo by id request
 server.get("/api/zoos/:id", async (req, res) => {
   try {
     if (zoo) {
@@ -51,7 +51,7 @@ server.get("/api/zoos/:id", async (req, res) => {
   }
 });
 
-// Create zoos
+// Create zoos request
 server.post("/api/zoos", async (req, res) => {
   try {
     if (req.body.name) {
@@ -66,15 +66,13 @@ server.post("/api/zoos", async (req, res) => {
       });
     }
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "There was an error while saving the zoo to the database"
-      });
+    res.status(500).json({
+      message: "There was an error while saving the zoo to the database"
+    });
   }
 });
 
-// Update zoo
+// Update zoo request
 server.put("/api/zoos/:id", async (req, res) => {
   try {
     const count = await db("zoos")
@@ -95,6 +93,25 @@ server.put("/api/zoos/:id", async (req, res) => {
     res
       .status(500)
       .json({ message: "The post information could not be modified." });
+  }
+});
+
+//delete zoos request
+server.delete("/api/zoos/:id", async (req, res) => {
+  try {
+    const count = await db("zoos")
+      .where({ id: req.params.id })
+      .del();
+
+    if (count > 0) {
+      res.status(204).end();
+    } else {
+      res
+        .status(404)
+        .json({ message: "The zoo with the specified ID does not exist." });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "The zoo could not be deleted" });
   }
 });
 
