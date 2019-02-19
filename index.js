@@ -51,7 +51,7 @@ server.get("/api/zoos/:id", async (req, res) => {
   }
 });
 
-//Create zoos
+// Create zoos
 server.post("/api/zoos", async (req, res) => {
   try {
     if (req.body.name) {
@@ -66,9 +66,35 @@ server.post("/api/zoos", async (req, res) => {
       });
     }
   } catch (error) {
-    res.status(500).json({
-      message: "There was an error while saving the zoo to the database"
-    });
+    res
+      .status(500)
+      .json({
+        message: "There was an error while saving the zoo to the database"
+      });
+  }
+});
+
+// Update zoo
+server.put("/api/zoos/:id", async (req, res) => {
+  try {
+    const count = await db("zoos")
+      .where({ id: req.params.id })
+      .update(req.body);
+
+    if (count > 0) {
+      const zoo = await db("zoos")
+        .where({ id: req.params.id })
+        .first();
+      res.status(200).json(zoo);
+    } else {
+      res
+        .status(404)
+        .json({ message: "The zoo with the specified ID does not exist." });
+    }
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "The post information could not be modified." });
   }
 });
 
